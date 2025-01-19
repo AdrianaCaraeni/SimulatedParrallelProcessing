@@ -1,89 +1,98 @@
+# 🚀 Simulated Parallel Processing
 
-# Simulated Parallel Processing
+This project demonstrates a simulated parallel processing system where multiple child processes are dynamically assigned tasks by the parent process. The child processes simulate work by performing a sleep operation and communicate their task completion back to the parent process.
 
-## Overview
+## 🛠️ Key Features
+- **Dynamic Task Assignment**: The parent process forks child processes in a loop, assigning unique tasks to each one based on its index.
+- **Process Management**: The system ensures that processes are properly reaped, pipes are closed, and the parent waits for child termination.
+- **Two-way Communication**: Pipes are set up for two-way communication between the parent and child processes.
+- **Signal Handling**: The project uses signals for task completion notification from child to parent.
+- **Error Handling**: All system calls such as `read`, `write`, `fork`, and `pipe` are error-handled for robustness.
 
-This project simulates parallel processing using child processes. The parent process dynamically assigns tasks to child processes, each of which performs a simulated workload. After completing their tasks, the child processes communicate the results back to the parent using pipes and signals. The program includes error handling, sleep time randomization, and ensures proper synchronization between processes.
+## 💻 Project Overview
 
-## Features
+### Parent Process:
+- Dynamically assigns tasks to child processes.
+- Communicates through pipes to send task assignments and receive results.
+- Waits for child processes to terminate before exiting.
 
-- **Dynamic Task Assignment**: The parent process forks child processes in a loop and assigns each process a unique task based on its index.
-  
-- **Two-Way Communication**: Pipes are used for communication in both directions:
-  - The parent-to-child pipe sends task assignments to the children.
-  - The child-to-parent pipe allows the child to send results back to the parent.
+### Child Processes:
+- Each child process performs a "work" simulation by sleeping for a randomized time.
+- After completing the task, the child notifies the parent via a signal and writes the result back through pipes.
 
-- **Signal Handling**: Each child process is assigned a unique signal. The child signals the parent when it completes its task. This ensures the parent is notified when each child finishes.
+### Communication & Synchronization:
+- **Pipes**: Two sets of pipes are created for each child—one for sending data from the parent to the child and one for sending data from the child to the parent.
+- **Signals**: Custom signals are used to notify the parent when a child completes its task, ensuring proper synchronization without busy-waiting.
 
-- **Error Handling**: The program includes robust error handling for system calls such as `fork()`, `pipe()`, `read()`, `write()`, and `close()` to ensure the program runs smoothly even in the case of failure.
+### Error Handling:
+- All system calls (`fork()`, `pipe()`, `read()`, `write()`) are wrapped in error checks to handle failures gracefully.
+- Pipe file descriptors are safely closed after use to prevent leaks.
 
-- **Memory Management**: Proper memory management is ensured by closing pipes and reaping child processes once they have completed their tasks, avoiding any resource leakage.
+## ⚙️ System Calls & Functions
 
-## Detailed Functionality
+- `fork()`: Used to create child processes.
+- `pipe()`: Sets up communication channels between the parent and child processes.
+- `read()`: Retrieves task data and results from pipes.
+- `write()`: Sends task assignments and results back to the parent.
+- `kill()`: Used to send signals to notify the parent of task completion.
+- `wait()`: Ensures the parent waits for all child processes to terminate.
 
-### 1. **Creating Child Processes**
-The program uses `fork()` in the `main()` function to create child processes. Each child is assigned a unique task based on its index in the loop. The task involves performing a simulated workload (e.g., a sleep operation).
+## 🛠️ How It Works
 
-### 2. **Reaping Child Processes**
-Once there are no more tasks to assign, the parent waits for all child processes to terminate. This is achieved using the `wait(NULL)` system call. The parent then closes the pipes and handles any remaining cleanup.
+1. **Forking Child Processes**: 
+   - The main process forks child processes using a loop.
+   - Each child is assigned a task based on its index.
 
-### 3. **Setting Up Communication**
-The program creates pipes for communication between the parent and child processes:
-- One pipe is used for sending tasks from the parent to the child.
-- Another pipe is used for sending task results from the child to the parent.
+2. **Pipes Setup**: 
+   - Each child gets a dedicated set of pipes for two-way communication.
 
-After the `fork()`, the unused pipe ends are closed on both the parent and child sides to ensure proper communication.
+3. **Signal Registration**: 
+   - Each child registers a unique signal (`SIGRTMIN + i`) to notify the parent when the task is completed.
 
-### 4. **Handling Signals**
-Each child process is assigned a unique signal (e.g., `SIGRTMIN + i`). The child sends a signal to the parent after completing its task. The parent handles these signals using the `sigaction()` system call, which ensures that the parent is notified when a child has finished.
+4. **Task Execution & Communication**: 
+   - The parent sends tasks to the children via the pipes.
+   - Once a task is completed, the child sends the result back to the parent through the pipes.
 
-### 5. **Reading and Writing Data**
-The program uses `write()` and `read()` system calls to communicate between the parent and child:
-- The parent writes task data to the child’s pipe.
-- The child reads the task data, performs its simulated task, and then writes the result back to the parent.
+5. **Process Reaping**: 
+   - The parent process waits for the termination of all child processes using `wait()`.
 
-### 6. **Signal-Driven Synchronization**
-The parent registers a signal handler to handle the completion of tasks. The signal handler is designed to update a global variable atomically, ensuring synchronization between the signal handler and the main execution flow.
+## ⚙️ Error Handling
+The project includes robust error handling throughout:
+- **Pipe Management**: All pipes are closed in the cleanup phase.
+- **Signal Handling**: Proper signal registration and handling to ensure correct synchronization between parent and child.
+- **System Call Error Checking**: Every system call (e.g., `fork()`, `pipe()`, `read()`, `write()`) is checked for failure, and proper actions are taken to handle errors.
 
-### 7. **Graceful Exit and Cleanup**
-Child processes monitor the return value of `read()`. If it returns zero (indicating that the pipe is closed), the child safely closes its file descriptors and exits the loop. All resources, including pipes, are cleaned up to prevent memory leaks.
+## 🏗️ Installation
 
-### 8. **Error Handling**
-Every system call (`fork()`, `pipe()`, `read()`, `write()`, `close()`) is wrapped in error handling. If a system call fails, the program prints an error message and exits gracefully. A helper function, `safe_close()`, is used to ensure that pipes are always closed correctly.
+To build and run the project, follow these steps:
 
-### 9. **Command-Line Arguments**
-The program accepts command-line arguments to specify the number of tasks to be processed. This allows for flexibility in testing and running the program with different workloads.
+1. Clone this repository:
 
-### 10. **Memory Management**
-No dynamic memory allocation is used in this program, so memory leaks are not a concern. All pipes are closed when they are no longer needed, and child processes are reaped to prevent resource leakage.
+    ```bash
+    git clone https://github.com/yourusername/SimulatedParallelProcessing.git
+    ```
 
-## Getting Started
+2. Navigate to the project directory:
 
-### Prerequisites
-- A Unix-based operating system (Linux, macOS).
-- A C compiler (e.g., `gcc`).
+    ```bash
+    cd SimulatedParallelProcessing
+    ```
 
-### Running the Program
+3. Compile the program:
 
-1. Clone the repository:
+    ```bash
+    make
+    ```
 
-   ```bash
-   git clone https://github.com/yourusername/SimulatedParallelProcessing.git
-   ```
+4. Run the program:
 
-2. Compile the program:
+    ```bash
+    ./simulated_parallel_processing
+    ```
 
-   ```bash
-   cd SimulatedParallelProcessing
-   gcc -o parallel_processing main.c
-   ```
+## 📬 Contact
+Feel free to reach out via [LinkedIn](https://linkedin.com/in/adriana-caraeni)
 
-3. Run the program with the desired number of tasks:
+---
 
-   ```bash
-   ./parallel_processing <number_of_tasks>
-   ```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Made with ❤️ and 🖥️ by Adriana 
