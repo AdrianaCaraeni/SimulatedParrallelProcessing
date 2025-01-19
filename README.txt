@@ -90,9 +90,6 @@ To build and run the project, follow these steps:
     ./simulated_parallel_processing
     ```
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 📬 Contact
 Feel free to reach out via [LinkedIn](https://linkedin.com/in/adriana-caraeni)
 
