@@ -35,26 +35,26 @@ This project demonstrates a simulated parallel processing system where multiple 
 - `read()`: Retrieves task data and results from pipes.
 - `write()`: Sends task assignments and results back to the parent.
 - `kill()`: Used to send signals to notify the parent of task completion.
-- `wait()`: Ensures the parent waits for all child processes to terminate.
+- `wait()`: Ensures the parent waits for the termination of all child processes.
 
 ## 🛠️ How It Works
 
-1. **Forking Child Processes**: 
-   - The main process forks child processes using a loop.
-   - Each child is assigned a task based on its index.
+1. **Forking Child Processes**:  
+   The main process forks child processes using a loop.  
+   Each child is assigned a task based on its index.
 
-2. **Pipes Setup**: 
-   - Each child gets a dedicated set of pipes for two-way communication.
+2. **Pipes Setup**:  
+   Each child gets a dedicated set of pipes for two-way communication.
 
-3. **Signal Registration**: 
-   - Each child registers a unique signal (`SIGRTMIN + i`) to notify the parent when the task is completed.
+3. **Signal Registration**:  
+   Each child registers a unique signal (`SIGRTMIN + i`) to notify the parent when the task is completed.
 
-4. **Task Execution & Communication**: 
-   - The parent sends tasks to the children via the pipes.
-   - Once a task is completed, the child sends the result back to the parent through the pipes.
+4. **Task Execution & Communication**:  
+   The parent sends tasks to the children via the pipes.  
+   Once a task is completed, the child sends the result back to the parent through the pipes.
 
-5. **Process Reaping**: 
-   - The parent process waits for the termination of all child processes using `wait()`.
+5. **Process Reaping**:  
+   The parent process waits for the termination of all child processes using `wait()`.
 
 ## ⚙️ Error Handling
 The project includes robust error handling throughout:
@@ -90,9 +90,13 @@ To build and run the project, follow these steps:
     ./simulated_parallel_processing
     ```
 
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## 📬 Contact
 Feel free to reach out via [LinkedIn](https://linkedin.com/in/adriana-caraeni)
 
 ---
 
-Made with ❤️ and 🖥️ by Adriana 
+Made with ❤️ and 🖥️ by Adriana
+
